@@ -5,10 +5,11 @@ import { ReportsModule } from './reports/reports.module';
 import {GraphQLModule} from '@nestjs/graphql';
 import {graphqlUploadExpress } from 'graphql-upload'
 import { join } from 'path';
-import { ArticlesResolver } from './articles/articles.resolver';
-import { ArticlesService } from './articles/articles.service';
 import { ArticlesModule } from './articles/articles.module';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
+import { RedisCacheModule } from './cache/redis-cache.module';
+import { SessionModule } from './session/session.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { UserModule } from './user/user.module';
   }),  
 
   GraphQLModule.forRoot({    
+    context : ({res, req}) => ({res, req}),
     uploads : false,    
     installSubscriptionHandlers : true,
     autoSchemaFile : join(process.cwd() , "src" , "graphql" , "schema.gql"),    
@@ -33,9 +35,12 @@ import { UserModule } from './user/user.module';
 
   ReportsModule,  
   ArticlesModule,
-  UserModule],
+  UserModule,
+  AuthModule,
+  RedisCacheModule,
+  SessionModule  ],
   controllers: [AppController],
-  providers: [ArticlesResolver, ArticlesService]  
+  providers: []  
 })
 export class AppModule implements NestModule{
   configure(consumer : MiddlewareConsumer){

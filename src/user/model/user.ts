@@ -16,7 +16,7 @@ export class User{
 
     @Field()
     @Prop({required : true})
-    mail : string;
+    email : string;
 
     @Prop({required : true, unique: true})
     boleta : string;
@@ -26,11 +26,12 @@ export class User{
 
     @Field()
     @Prop({required : true})
-    gender : string;    
+    gender : string;   
+        
     
     @Field()
     @Prop()
-    imgURL:string;
+    imgURL?:string;
 }
 
 export type UserDocument = User & Document;

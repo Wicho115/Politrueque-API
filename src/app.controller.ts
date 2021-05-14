@@ -1,9 +1,14 @@
 import { Controller, Get } from '@nestjs/common';
 
+
 @Controller()
 export class AppController {
-  @Get()
+  constructor(       
+  ){}
+
+  @Get('/')
   getHello(): string {
-    return 'uw';
+    return 'uwu';
   }
+
 }

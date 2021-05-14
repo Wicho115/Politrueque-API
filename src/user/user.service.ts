@@ -2,26 +2,51 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {model, Model, Types} from 'mongoose';
 import {User, UserDocument, UserSchema} from './model/user';
-import { GraphQLUpload, FileUpload } from 'graphql-upload';
 const path = require('path');
 const fs = require('fs');
-import {CreateUserInput, UpdateUserInput, UpdateMailInput, FileInput} from './user.inputs';
+import {CreateAdminInput, UpdateUserInput, UpdatePasswordInput, FileInput, PrivilegesInput} from './user.inputs';
 import * as bcrypt from 'bcryptjs';
 import { File } from 'src/model/file';
+import { Admin, AdminDocument, AdminSchema } from './model/admin';
 
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectModel(User.name)
-        private readonly userModel: Model<UserDocument>              
+        private readonly userModel: Model<UserDocument>    ,
+        
+        @InjectModel(Admin.name)
+        private readonly adminModel : Model<AdminDocument>
     ){}
 
     public async searchUserByID(_id : string) : Promise<User>{
         return await this.userModel.findById(_id);
     }
 
-    public async createUser(data : CreateUserInput) : Promise<User>{
+    async searchUserByEmail(email : string) : Promise<User> | undefined{
+        return await this.userModel.findOne({email});
+    }
+    
+    async getAdminByID(_id : string) :Promise<Admin> | undefined{
+        return await this.adminModel.findOne({ID: _id});
+    }
+
+    public async createAdmin(data : CreateAdminInput, privileges : PrivilegesInput) : Promise<User>{
+        data.email = data.email.toLowerCase();        
+        const salt= await bcrypt.genSalt(10);
+        data.password = await bcrypt.hash(data.password, salt);
+        const newUser = new this.userModel(data);
+
+        const newAdmin = new this.adminModel({ID : newUser._id, privileges});
+        await newAdmin.save();    
+
+        return await newUser.save()
+    }
+
+    public async createUser(data : CreateAdminInput) : Promise<User>{
+        data.email = data.email.toLowerCase();
+
         const salt= await bcrypt.genSalt(10);
         data.password = await bcrypt.hash(data.password, salt);
         const newUser = new this.userModel(data);
@@ -32,7 +57,7 @@ export class UserService {
         return await this.userModel.findByIdAndUpdate(data._id, {username : data.username}, {new : true} );
     }
 
-    public async UpdatePassword(data : UpdateMailInput) : Promise<User>{
+    public async UpdatePassword(data : UpdatePasswordInput) : Promise<User>{
         const user = await this.userModel.findById(data._id);
         const match = await bcrypt.compare(data.password, user.password);
         if(match){

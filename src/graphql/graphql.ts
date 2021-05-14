@@ -7,15 +7,26 @@
 
 /* tslint:disable */
 /* eslint-disable */
-export class CreateUserInput {
+export class CreateAdminInput {
     boleta: string;
+    email: string;
     gender: string;
-    mail: string;
     password: string;
     username: string;
 }
 
-export class UpdateMailInput {
+export class PrivilegesInput {
+    canAcceptArticles: boolean;
+    canDeleteArticles: boolean;
+    canDeleteReports: boolean;
+    canDeleteUsers: boolean;
+    canRegisterAdmin: boolean;
+    canRegisterUser: boolean;
+    canReportArticles: boolean;
+    canReportUsers: boolean;
+}
+
+export class UpdatePasswordInput {
     _id: string;
     newPassword: string;
     password: string;
@@ -32,9 +43,9 @@ export class File {
 }
 
 export abstract class IMutation {
-    abstract createUser(payload: CreateUserInput): User | Promise<User>;
+    abstract registerAdmin(payload: CreateAdminInput, privileges: PrivilegesInput): User | Promise<User>;
 
-    abstract updatePassword(payload: UpdateMailInput): User | Promise<User>;
+    abstract updatePassword(payload: UpdatePasswordInput): User | Promise<User>;
 
     abstract updateUser(payload: UpdateUserInput): User | Promise<User>;
 
@@ -42,16 +53,16 @@ export abstract class IMutation {
 }
 
 export abstract class IQuery {
-    abstract Hello(): string | Promise<string>;
+    abstract bye(): User | Promise<User>;
 
     abstract getUserByID(_id: string): User | Promise<User>;
 }
 
 export class User {
     _id: string;
+    email: string;
     gender: string;
     imgURL: string;
-    mail: string;
     username: string;
 }
 

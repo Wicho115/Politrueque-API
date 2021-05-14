@@ -1,13 +1,33 @@
-import {Field, InputType, Int} from '@nestjs/graphql';
+import {Field, InputType, Int, ObjectType} from '@nestjs/graphql';
 import { GraphQLUpload } from 'graphql-upload';
 
 @InputType()
-export class CreateUserInput{
+export class PrivilegesInput{
+    @Field(() => Boolean)
+    canRegisterAdmin : boolean;
+    @Field(() => Boolean)
+    canRegisterUser : boolean;
+    @Field(() => Boolean)
+    canDeleteArticles : boolean;
+    @Field(() => Boolean)
+    canDeleteReports : boolean;
+    @Field(() => Boolean)
+    canDeleteUsers : boolean;
+    @Field(() => Boolean)
+    canReportUsers : boolean;
+    @Field(() => Boolean)
+    canReportArticles : boolean;
+    @Field(() => Boolean)
+    canAcceptArticles : boolean;
+}
+
+@InputType()
+export class CreateAdminInput{
     @Field(() => String)    
     username : string;
 
     @Field(() => String)
-    mail : string;
+    email : string;
     
     @Field(() => String)
     boleta : string;
@@ -33,7 +53,7 @@ export class UpdateUserInput{
 }
 
 @InputType()
-export class UpdateMailInput{
+export class UpdatePasswordInput{
     @Field(() => String)
     _id : string;
 

@@ -1,31 +1,59 @@
-import { Resolver, Query, Mutation, Args} from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Int} from '@nestjs/graphql';
 import {UserService} from './user.service'
 import {User} from './model/user'
 import { GraphQLUpload, FileUpload } from 'graphql-upload';
-import {UpdateUserInput, CreateUserInput, UpdateMailInput, FileInput} from './user.inputs'
-import { BadRequestException } from '@nestjs/common';
+import {UpdateUserInput, CreateAdminInput, UpdatePasswordInput, FileInput, PrivilegesInput} from './user.inputs'
+import { BadRequestException, ExecutionContext, PayloadTooLargeException, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import {handleMongoError} from '../utils/error.util'
 import {File} from '../model/file';
+import {GqlAuthGuard} from 'src/auth/guards/gql-auth.guard'
+import { CurrentUser } from 'src/auth/current-user.decorator';
+import {Privileges} from './interface/privileges.interface'
 
-
-@Resolver()
+@Resolver(() => User)
 export class UserResolver {
     constructor(
-        private userService : UserService
+        private readonly userService : UserService
     ){}
-
-    @Query(() => String)
-    public Hello(){
-        return 'Hello from graphql';
+        
+    @Query(() => User)   
+    @UseGuards(GqlAuthGuard)     
+    public bye( @CurrentUser() user : User){                      
+        
+        return user;
     }
 
-    @Query(() => User)
+
+    @Query(() => User)    
     public async getUserByID(@Args('_id') id : string){        
        return await this.userService.searchUserByID(id);
     }
-
+    
+    
     @Mutation(() => User)
-    public async createUser(@Args('payload') payload : CreateUserInput){
-        return await this.userService.createUser(payload);
+    @UseGuards(GqlAuthGuard)    
+    public async registerAdmin(
+        @Args('payload') payload : CreateAdminInput, 
+        @Args('privileges') privileges : PrivilegesInput,
+        @CurrentUser() {_id} : User    
+    ){        
+        const admin = await this.userService.getAdminByID(_id).catch((e) => {
+            throw handleMongoError(e)
+        })   
+
+        if(!admin){
+            throw new UnauthorizedException("You don't have enough privileges, not admin found")
+        }
+        
+        const userPrivileges = admin.privileges as Privileges;                 
+
+        if(!userPrivileges.canRegisterAdmin){
+            throw new UnauthorizedException("You don't have enough privileges")
+        }
+
+        return await this.userService.createAdmin(payload, privileges).catch((e) => {
+            throw handleMongoError(e);
+        });      
     }
 
     @Mutation(() => User)    
@@ -34,7 +62,7 @@ export class UserResolver {
     }
     
     @Mutation(() => User)
-    public async updatePassword(@Args('payload') payload : UpdateMailInput){
+    public async updatePassword(@Args('payload') payload : UpdatePasswordInput){
         return await this.userService.UpdatePassword(payload);
     }
 

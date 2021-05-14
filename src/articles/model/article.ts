@@ -1,8 +1,9 @@
 import {ObjectType, Int, ID, Field} from '@nestjs/graphql';
-import {Schema, Prop} from '@nestjs/mongoose'
+import {Schema, Prop, SchemaFactory} from '@nestjs/mongoose';
+import {Document} from 'mongoose';
 
 @ObjectType()
-@Schema()
+@Schema({timestamps : true, versionKey : false})
 export class Article{
     @Field(() => ID)
     _id: string;
@@ -23,5 +24,7 @@ export class Article{
     @Prop({required : true})
     propietary_id : string;
 
-
 }
+
+export type ArticleDocument = Article & Document;
+export const ArticleSchema = SchemaFactory.createForClass(Article);

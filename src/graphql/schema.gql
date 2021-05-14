@@ -2,10 +2,10 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-input CreateUserInput {
+input CreateAdminInput {
   boleta: String!
+  email: String!
   gender: String!
-  mail: String!
   password: String!
   username: String!
 }
@@ -15,18 +15,29 @@ type File {
 }
 
 type Mutation {
-  createUser(payload: CreateUserInput!): User!
-  updatePassword(payload: UpdateMailInput!): User!
+  registerAdmin(payload: CreateAdminInput!, privileges: PrivilegesInput!): User!
+  updatePassword(payload: UpdatePasswordInput!): User!
   updateUser(payload: UpdateUserInput!): User!
   uploadFile(file: Upload!): File!
 }
 
+input PrivilegesInput {
+  canAcceptArticles: Boolean!
+  canDeleteArticles: Boolean!
+  canDeleteReports: Boolean!
+  canDeleteUsers: Boolean!
+  canRegisterAdmin: Boolean!
+  canRegisterUser: Boolean!
+  canReportArticles: Boolean!
+  canReportUsers: Boolean!
+}
+
 type Query {
-  Hello: String!
+  bye: User!
   getUserByID(_id: String!): User!
 }
 
-input UpdateMailInput {
+input UpdatePasswordInput {
   _id: String!
   newPassword: String!
   password: String!
@@ -43,8 +54,8 @@ scalar Upload
 
 type User {
   _id: ID!
+  email: String!
   gender: String!
   imgURL: String!
-  mail: String!
   username: String!
 }
