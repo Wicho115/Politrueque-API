@@ -24,6 +24,10 @@ export class Article{
     @Prop({required : true})
     propietary_id : string;
 
+    @Field(() => Boolean)
+    @Prop({required : true})
+    accepted : boolean;
+
 }
 
 export type ArticleDocument = Article & Document;

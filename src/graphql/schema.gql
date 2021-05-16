@@ -2,7 +2,7 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-input CreateAdminInput {
+input CreateUserInput {
   boleta: String!
   email: String!
   gender: String!
@@ -15,9 +15,9 @@ type File {
 }
 
 type Mutation {
-  registerAdmin(payload: CreateAdminInput!, privileges: PrivilegesInput!): User!
-  updatePassword(payload: UpdatePasswordInput!): User!
-  updateUser(payload: UpdateUserInput!): User!
+  createUser(payload: CreateUserInput!): User!
+  deleteUser(id: String!): User!
+  registerAdmin(payload: CreateUserInput!, privileges: PrivilegesInput!): User!
   uploadFile(file: Upload!): File!
 }
 
@@ -35,18 +35,6 @@ input PrivilegesInput {
 type Query {
   bye: User!
   getUserByID(_id: String!): User!
-}
-
-input UpdatePasswordInput {
-  _id: String!
-  newPassword: String!
-  password: String!
-}
-
-input UpdateUserInput {
-  Image: Upload
-  _id: String!
-  username: String
 }
 
 """The `Upload` scalar type represents a file upload."""

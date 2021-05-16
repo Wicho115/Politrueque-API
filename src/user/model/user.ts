@@ -11,11 +11,11 @@ export class User{
     _id : string;
 
     @Field()
-    @Prop({required : true})
+    @Prop({required : true, unique : true})
     username : string;
 
     @Field()
-    @Prop({required : true})
+    @Prop({required : true, unique : true})
     email : string;
 
     @Prop({required : true, unique: true})

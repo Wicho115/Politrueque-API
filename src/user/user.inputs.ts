@@ -22,7 +22,7 @@ export class PrivilegesInput{
 }
 
 @InputType()
-export class CreateAdminInput{
+export class CreateUserInput{
     @Field(() => String)    
     username : string;
 
@@ -50,18 +50,6 @@ export class UpdateUserInput{
     @Field(() => GraphQLUpload, {nullable : true})
     Image ?: GraphQLUpload;
     
-}
-
-@InputType()
-export class UpdatePasswordInput{
-    @Field(() => String)
-    _id : string;
-
-    @Field(() => String)
-    password : string;
-
-    @Field(() => String)
-    newPassword : string;
 }
 
 @InputType()

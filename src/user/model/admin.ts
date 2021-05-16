@@ -3,7 +3,7 @@ import { Document } from "mongoose";
 
 @Schema({timestamps : true, versionKey : false})
 export class Admin{
-    @Prop({required : true})
+    @Prop({required : true, unique : true})
     ID : string;
 
     @Prop(raw({

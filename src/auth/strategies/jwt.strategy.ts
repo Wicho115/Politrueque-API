@@ -29,13 +29,6 @@ export class JwtStrategy extends PassportStrategy(Strategy){
         const token = ExtractJwt.fromAuthHeaderAsBearerToken()(request)
         const user = await this.userService.searchUserByID(validationPayload.id)
 
-        console.log(validationPayload.id);
-        
-        console.log(token);
-        console.log(user);
-        
-        
-
         const isValid = await this.sessionService.isValidToken(
             !user ? 'no existe': user._id,
             token

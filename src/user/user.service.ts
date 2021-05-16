@@ -4,7 +4,7 @@ import {model, Model, Types} from 'mongoose';
 import {User, UserDocument, UserSchema} from './model/user';
 const path = require('path');
 const fs = require('fs');
-import {CreateAdminInput, UpdateUserInput, UpdatePasswordInput, FileInput, PrivilegesInput} from './user.inputs';
+import {CreateUserInput, UpdateUserInput, FileInput, PrivilegesInput} from './user.inputs';
 import * as bcrypt from 'bcryptjs';
 import { File } from 'src/model/file';
 import { Admin, AdminDocument, AdminSchema } from './model/admin';
@@ -32,7 +32,7 @@ export class UserService {
         return await this.adminModel.findOne({ID: _id});
     }
 
-    public async createAdmin(data : CreateAdminInput, privileges : PrivilegesInput) : Promise<User>{
+    public async createAdmin(data : CreateUserInput, privileges : PrivilegesInput) : Promise<User>{
         data.email = data.email.toLowerCase();        
         const salt= await bcrypt.genSalt(10);
         data.password = await bcrypt.hash(data.password, salt);
@@ -44,7 +44,7 @@ export class UserService {
         return await newUser.save()
     }
 
-    public async createUser(data : CreateAdminInput) : Promise<User>{
+    public async createUser(data : CreateUserInput) : Promise<User>{
         data.email = data.email.toLowerCase();
 
         const salt= await bcrypt.genSalt(10);
@@ -53,22 +53,18 @@ export class UserService {
         return await newUser.save()
     }
 
+    public async deleteUser(id :string) : Promise<User> | undefined{
+        return await this.userModel.findByIdAndDelete(id);
+    }
+
+    public async deleteAdmin(id : string) : Promise<Admin> {
+        return await this.adminModel.findOneAndDelete({ID: id});
+    }
+
     public async UpdateUser(data :UpdateUserInput) : Promise<User>{        
         return await this.userModel.findByIdAndUpdate(data._id, {username : data.username}, {new : true} );
     }
-
-    public async UpdatePassword(data : UpdatePasswordInput) : Promise<User>{
-        const user = await this.userModel.findById(data._id);
-        const match = await bcrypt.compare(data.password, user.password);
-        if(match){
-            console.log('Changing password');
-            const salt = await bcrypt.genSalt(10);
-            data.newPassword = await bcrypt.hash(data.password, salt);            
-            return await this.userModel.findByIdAndUpdate(data._id, {password : data.newPassword}, {new : true});
-        }else{
-            throw new BadRequestException('Not not not same password');
-        }        
-    }
+    
 
     public async GetFile(data) : Promise<File>{
 

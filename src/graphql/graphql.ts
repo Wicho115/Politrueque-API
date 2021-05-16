@@ -7,7 +7,7 @@
 
 /* tslint:disable */
 /* eslint-disable */
-export class CreateAdminInput {
+export class CreateUserInput {
     boleta: string;
     email: string;
     gender: string;
@@ -26,28 +26,16 @@ export class PrivilegesInput {
     canReportUsers: boolean;
 }
 
-export class UpdatePasswordInput {
-    _id: string;
-    newPassword: string;
-    password: string;
-}
-
-export class UpdateUserInput {
-    Image?: Upload;
-    _id: string;
-    username?: string;
-}
-
 export class File {
     url: string;
 }
 
 export abstract class IMutation {
-    abstract registerAdmin(payload: CreateAdminInput, privileges: PrivilegesInput): User | Promise<User>;
+    abstract createUser(payload: CreateUserInput): User | Promise<User>;
 
-    abstract updatePassword(payload: UpdatePasswordInput): User | Promise<User>;
+    abstract deleteUser(id: string): User | Promise<User>;
 
-    abstract updateUser(payload: UpdateUserInput): User | Promise<User>;
+    abstract registerAdmin(payload: CreateUserInput, privileges: PrivilegesInput): User | Promise<User>;
 
     abstract uploadFile(file: Upload): File | Promise<File>;
 }
