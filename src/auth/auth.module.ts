@@ -7,18 +7,20 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { AuthController } from './auth.controller';
 import { SessionModule } from 'src/session/session.module';
+import { JwtAdminStrategy } from './strategies/admin.strategy';
 
 @Module({
   imports: [
     UserModule,
-    SessionModule,  
+    SessionModule,      
     PassportModule.register({defaultStrategy: 'jwt'}),
     JwtModule.register({
       secret : process.env.ACCESS_TOKEN_SECRET,
       signOptions : {expiresIn : '7d'}
     })
   ],
-  providers: [AuthService, JwtStrategy, LocalStrategy],
-  controllers: [AuthController]
+  providers: [AuthService, JwtStrategy, LocalStrategy, JwtAdminStrategy],
+  controllers: [AuthController],
+  exports : [AuthService]
 })
 export class AuthModule {}

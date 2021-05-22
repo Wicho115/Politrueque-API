@@ -1,13 +1,16 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Inject, forwardRef } from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
-import {model, Model, Types} from 'mongoose';
+import { Model} from 'mongoose';
 import {User, UserDocument, UserSchema} from './model/user';
 const path = require('path');
 const fs = require('fs');
-import {CreateUserInput, UpdateUserInput, FileInput, PrivilegesInput} from './user.inputs';
+import {CreateUserInput, UpdateUserInput, PrivilegesInput} from './user.inputs';
 import * as bcrypt from 'bcryptjs';
 import { File } from 'src/model/file';
 import { Admin, AdminDocument, AdminSchema } from './model/admin';
+import {FileUpload} from 'graphql-upload';
+import * as firebase from 'firebase-admin';
+import { ArticlesService } from 'src/articles/articles.service';
 
 
 @Injectable()
@@ -17,7 +20,9 @@ export class UserService {
         private readonly userModel: Model<UserDocument>    ,
         
         @InjectModel(Admin.name)
-        private readonly adminModel : Model<AdminDocument>
+        private readonly adminModel : Model<AdminDocument>,
+        
+        private readonly  articleService : ArticlesService        
     ){}
 
     public async searchUserByID(_id : string) : Promise<User>{
@@ -37,11 +42,11 @@ export class UserService {
         const salt= await bcrypt.genSalt(10);
         data.password = await bcrypt.hash(data.password, salt);
         const newUser = new this.userModel(data);
-
-        const newAdmin = new this.adminModel({ID : newUser._id, privileges});
+        const savedUser = await newUser.save();
+        const newAdmin = new this.adminModel({ID : savedUser._id, privileges});
         await newAdmin.save();    
 
-        return await newUser.save()
+        return savedUser;
     }
 
     public async createUser(data : CreateUserInput) : Promise<User>{
@@ -53,7 +58,8 @@ export class UserService {
         return await newUser.save()
     }
 
-    public async deleteUser(id :string) : Promise<User> | undefined{
+    public async deleteUser(id :string) : Promise<User> | undefined{  
+        this.articleService      
         return await this.userModel.findByIdAndDelete(id);
     }
 
@@ -66,7 +72,7 @@ export class UserService {
     }
     
 
-    public async GetFile(data) : Promise<File>{
+    public async GetFile(data : Promise<FileUpload>) : Promise<File>{
 
         console.log(data);
         const {createReadStream, filename} = await data;
@@ -85,5 +91,19 @@ export class UserService {
         return {
             url : `http://localhost:5000/images/${filename}`
         };
+    }
+
+    public async upload() : Promise<String>{
+        const bucket = firebase.storage().bucket();
+        const storage = firebase.storage();
+        const response = await bucket.upload('./src/user/plsrespond.png');
+        const file = await bucket.file('plsrespond.png');
+        const signed = await file.getSignedUrl({
+            expires : '03-09-2400',
+            action : 'read',
+            accessibleAt : ''
+        });
+
+        return signed[0];
     }
 }

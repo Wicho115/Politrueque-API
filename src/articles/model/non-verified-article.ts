@@ -1,11 +1,12 @@
-import {ObjectType, Int, ID, Field, Float} from '@nestjs/graphql';
-import {Schema, Prop, SchemaFactory, raw} from '@nestjs/mongoose';
+import { ObjectType, Int, ID, Field, Float } from "@nestjs/graphql";
+import { Schema, Prop, SchemaFactory, raw } from "@nestjs/mongoose";
 import {Document, Types} from 'mongoose';
-import { User } from 'src/user/model/user';
+import { User } from "src/user/model/user";
+
 
 @ObjectType()
 @Schema({timestamps : true, versionKey : false})
-export class Article{
+export class NonVerifiedArticle{
     @Field(() => ID)
     _id: string;
 
@@ -20,11 +21,10 @@ export class Article{
     @Field(() => Int)
     @Prop({required : true})
     stock : number;
-        
+      
     @Prop({required : true})
     propietary_id : string;  
 
-    
     @Field(() => String)
     @Prop({required : true})
     category : string;
@@ -36,9 +36,9 @@ export class Article{
     @Field(() => Boolean)
     @Prop({required : true})
     available : boolean;
-    
+
     @Field(() => Int)
-    @Prop({required : true, min : 1, max : 3})
+    @Prop({required : true})
     action_id : number;
 
     @Field(() => Float, {nullable : true})
@@ -48,7 +48,8 @@ export class Article{
     @Field(() => String, {nullable : true})
     @Prop()
     exchange_product ?: string;    
+
 }
 
-export type ArticleDocument = Article & Document;
-export const ArticleSchema = SchemaFactory.createForClass(Article);
+export type NonVerifiedArticleDocument = NonVerifiedArticle & Document;
+export const NonVerifiedArticleSchema = SchemaFactory.createForClass(NonVerifiedArticle);

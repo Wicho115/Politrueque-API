@@ -2,6 +2,41 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input ActionInput {
+  action_id: Int!
+  exchange_article: String!
+  price: Float!
+}
+
+type Article {
+  _id: ID!
+  action_id: Int!
+  available: Boolean!
+  category: String!
+  description: String!
+  exchange_product: String
+  name: String!
+  price: Float
+  propietary: User!
+  state: Boolean!
+  stock: Int!
+}
+
+input CreateArticleInput {
+  category: String!
+  description: String!
+  name: String!
+  state: Boolean!
+  stock: Int!
+}
+
+input CreateReportInput {
+  description: String!
+  ref_id: String!
+  title: String!
+  type: String!
+}
+
 input CreateUserInput {
   boleta: String!
   email: String!
@@ -15,10 +50,33 @@ type File {
 }
 
 type Mutation {
+  confirmArticle(id: String!): Article!
+  createArticle(action: ActionInput!, payload: CreateArticleInput!): NonVerifiedArticle!
+  createReport(payload: CreateReportInput!): Report!
   createUser(payload: CreateUserInput!): User!
+  deleteArticle(id: String!): Article!
+  deleteNVArticle(id: String!): NonVerifiedArticle!
+  deleteReport(id: String!): Report!
   deleteUser(id: String!): User!
   registerAdmin(payload: CreateUserInput!, privileges: PrivilegesInput!): User!
+  updateArticle(payload: UpdateArticleInput!): Article!
+  updateNVArticle(payload: UpdateNVArticleInput!): NonVerifiedArticle!
+  updateReport(payload: UpdateReportInput!): Report!
   uploadFile(file: Upload!): File!
+}
+
+type NonVerifiedArticle {
+  _id: ID!
+  action_id: Int!
+  available: Boolean!
+  category: String!
+  description: String!
+  exchange_product: String
+  name: String!
+  price: Float
+  propietary: User!
+  state: Boolean!
+  stock: Int!
 }
 
 input PrivilegesInput {
@@ -34,13 +92,57 @@ input PrivilegesInput {
 
 type Query {
   bye: User!
+  getArticle(id: String!): Article!
+  getArticles(action_id: Int!): [Article!]!
+  getNVArticle(id: String!): NonVerifiedArticle!
+  getNonVerifiedArticles: [NonVerifiedArticle!]!
+  getReport(id: String!): Report!
+  getReports: [Report!]!
+  getReportsByType(type: String!): [Report!]!
   getUserByID(_id: String!): User!
+  hello: String!
+}
+
+type Report {
+  _id: ID!
+  article_ref: Article
+  author: User!
+  author_id: String!
+  description: String!
+  ref_id: String!
+  title: String!
+  type: String!
+  user_ref: User
+}
+
+input UpdateArticleInput {
+  id: String!
+  stock: Int!
+}
+
+input UpdateNVArticleInput {
+  category: String
+  description: String
+  exchange_product: String
+  id: String!
+  name: String
+  price: Float
+  state: Boolean
+  stock: Int
+}
+
+input UpdateReportInput {
+  description: String
+  id: String!
+  title: String
 }
 
 """The `Upload` scalar type represents a file upload."""
 scalar Upload
 
 type User {
+  Articles: [Article!]
+  Reports: [Report!]
   _id: ID!
   email: String!
   gender: String!

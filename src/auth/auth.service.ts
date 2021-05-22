@@ -4,6 +4,7 @@ import { User } from 'src/user/model/user';
 import { UserService } from 'src/user/user.service';
 import {compare} from 'bcryptjs'
 import { SessionService } from 'src/session/session.service';
+import { Admin } from 'src/user/model/admin';
 
 @Injectable()
 export class AuthService {
@@ -26,10 +27,16 @@ export class AuthService {
     }
 
     async login(user : User): Promise<{access_token : string, user : Record<string, string | boolean>}>{
-        const payload = {
-            id : user._id
-        }
 
+        const admin = await this.userService.getAdminByID(user._id);    
+
+        const payload = {
+            id : user._id,
+            privileges : (!admin) ?  '' : admin.privileges
+        };      
+
+        console.log(payload);
+       
         const token = this.jwtService.sign(payload, {
             secret : process.env.ACCESS_TOKEN_SECRET
         })
@@ -59,7 +66,7 @@ export class AuthService {
         }
 
         return user;
-    }
+    }    
 
     resolveIDFromToken(token: string): { id: string } {
         return this.jwtService.verify(token, {

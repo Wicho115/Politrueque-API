@@ -2,7 +2,6 @@ import {Field, ObjectType, ID} from '@nestjs/graphql';
 import {Schema, Prop, SchemaFactory} from '@nestjs/mongoose';
 import { GraphQLUpload } from 'graphql-upload';
 import {Document} from 'mongoose';
-import * as bcrypt from 'bcryptjs';
 
 @ObjectType()
 @Schema({timestamps : true, versionKey : false})

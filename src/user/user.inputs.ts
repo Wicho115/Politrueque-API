@@ -1,4 +1,4 @@
-import {Field, InputType, Int, ObjectType} from '@nestjs/graphql';
+import {Field, InputType} from '@nestjs/graphql';
 import { GraphQLUpload } from 'graphql-upload';
 
 @InputType()
@@ -48,12 +48,5 @@ export class UpdateUserInput{
     username ?: string;
 
     @Field(() => GraphQLUpload, {nullable : true})
-    Image ?: GraphQLUpload;
-    
-}
-
-@InputType()
-export class FileInput{
-    @Field(() => GraphQLUpload)
-    file : GraphQLUpload;
+    Image ?: typeof GraphQLUpload;    
 }

@@ -12,6 +12,16 @@ export class AuthController {
         private readonly sessionService : SessionService,
     ){}
 
+    @Get('test')
+    test(@Req() req : Request){
+        const quer = req.query;
+        console.log(quer);
+        
+        const t = req.query['t'];
+        console.log(t);
+        return 'Yes';
+    }
+
     @UseGuards(LocalAuthGuard)
     @Post('login')
     async login(@Req() req : Request) : Promise<{access_token : string, user : Record<string, string | boolean>}>{

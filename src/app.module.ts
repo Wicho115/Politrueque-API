@@ -1,7 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import {MongooseModule} from '@nestjs/mongoose';
-import { ReportsModule } from './reports/reports.module';
 import {GraphQLModule} from '@nestjs/graphql';
 import {graphqlUploadExpress } from 'graphql-upload'
 import { join } from 'path';
@@ -10,6 +9,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { RedisCacheModule } from './cache/redis-cache.module';
 import { SessionModule } from './session/session.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
