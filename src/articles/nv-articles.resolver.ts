@@ -1,6 +1,5 @@
 import { BadRequestException, UnauthorizedException, UseGuards } from "@nestjs/common";
 import { Query, Resolver, Mutation, Args, ResolveField, Parent } from "@nestjs/graphql";
-import { AuthService } from "src/auth/auth.service";
 import { CurrentUser } from "src/auth/decorators/current-user.decorator";
 import { GqlAuthGuard } from "src/auth/guards/gql-auth.guard";
 import { User } from "src/user/model/user";
@@ -10,16 +9,18 @@ import { ActionInput, CreateArticleInput, UpdateNVArticleInput } from "./article
 import { ArticlesService } from "./articles.service";
 import { Article } from "./model/article";
 import { NonVerifiedArticle } from "./model/non-verified-article";
-import {MyMiddleware} from './middleware/MyMiddleware'
 import { AdminAuthGuard } from "src/auth/guards/admin-auth.guard";
 import { CurrentPrivileges } from "src/auth/decorators/current-privileges.decorator";
 import { Privileges } from "src/user/interface/privileges.interface";
+import { CommentsService } from "src/comments/comments.service";
+import { Comment } from "src/comments/model/comment";
 
 @Resolver(() => NonVerifiedArticle)
 export class NVArticlesResolver{
     constructor(
         private readonly articleService : ArticlesService,
-        private readonly userService : UserService,        
+        private readonly userService : UserService,       
+        private readonly commentService : CommentsService, 
     ){}
 
     @Query(() => [NonVerifiedArticle])
@@ -31,11 +32,20 @@ export class NVArticlesResolver{
     }
 
     @Query(() => NonVerifiedArticle)
-    @UseGuards(AdminAuthGuard)
+    @UseGuards(GqlAuthGuard)
     public async getNVArticle(
         @Args('id', {type : () => String} )id : string,
+        @CurrentUser() user : User,
     ) : Promise<NonVerifiedArticle>{
-        return await this.articleService.getNonVerifiedArticle(id);
+        return await this.articleService.getMyNonVerifiedArticle(id, user);
+    }
+
+    @Query(() => [NonVerifiedArticle])
+    @UseGuards(GqlAuthGuard)
+    public async getMyNVArticles(
+        @CurrentUser() user : User,
+    ) : Promise<NonVerifiedArticle[] | void>{
+        return await this.articleService.getMyNVArticles(user);
     }
 
     @Mutation(() => NonVerifiedArticle)
@@ -68,7 +78,7 @@ export class NVArticlesResolver{
             if(!privileges.canDeleteArticles){
                 throw new UnauthorizedException("You don't have enough privileges");
             }
-        }
+        }    
 
         return await this.articleService.deleteNVArticle(id);
     }
@@ -79,10 +89,8 @@ export class NVArticlesResolver{
         @CurrentPrivileges() privileges : Privileges,
         @Args('id', {type : () => String}) id : string,
     ){        
-        if(!privileges.canAcceptArticles){
-            throw new UnauthorizedException("You don't have enough privileges");
-        }
-
+        if(!privileges.canAcceptArticles) throw new UnauthorizedException("You don't have enough privileges");
+        
         return await this.articleService.verifyArticle(id).catch((e) => {
             handleMongoError(e);
         });
@@ -106,9 +114,14 @@ export class NVArticlesResolver{
     }
     
 
-    @ResolveField(() => User, {middleware : [MyMiddleware]})
-    async propietary(@Parent() Article : NonVerifiedArticle){
+    @ResolveField(() => User)
+    async Propietary(@Parent() Article : NonVerifiedArticle){
         const {propietary_id} = Article;
         return await this.userService.searchUserByID(propietary_id);
+    }
+
+    @ResolveField(() => [Comment], {nullable : true})
+    public async Comments(@Parent() {_id} : NonVerifiedArticle){
+        return await this.commentService.getCommentsByArticleID(_id);
     }
 }

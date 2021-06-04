@@ -26,29 +26,27 @@ export class AuthService {
         return validPassword ? user : null;
     }
 
-    async login(user : User): Promise<{access_token : string, user : Record<string, string | boolean>}>{
-
+    async login(user : User): Promise<{access_token : string, user : Record<string, string | boolean>}>{                
+        
         const admin = await this.userService.getAdminByID(user._id);    
 
         const payload = {
             id : user._id,
             privileges : (!admin) ?  '' : admin.privileges
-        };      
-
-        console.log(payload);
+        };              
        
         const token = this.jwtService.sign(payload, {
             secret : process.env.ACCESS_TOKEN_SECRET
         })
 
-        await this.sessionService.createSession(user._id, token);
-
+        await this.sessionService.createSession(user._id, token);        
+        
         return {
             user: {
                 email: user.email,
                 username : user.username,
-                id : user._id,            
-
+                id : user._id,
+                boleta : user.boleta
             },
             access_token : token
         }

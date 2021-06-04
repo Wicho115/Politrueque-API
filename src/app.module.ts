@@ -4,12 +4,14 @@ import {MongooseModule} from '@nestjs/mongoose';
 import {GraphQLModule} from '@nestjs/graphql';
 import {graphqlUploadExpress } from 'graphql-upload'
 import { join } from 'path';
-import { ArticlesModule } from './articles/articles.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { RedisCacheModule } from './cache/redis-cache.module';
 import { SessionModule } from './session/session.module';
 import { ReportsModule } from './reports/reports.module';
+import { UploadModule } from './upload/upload.module';
+import { CommentsModule } from './comments/comments.module';
+import { ArticlesModule } from './articles/articles.module';
 
 @Module({
   imports: [
@@ -38,7 +40,9 @@ import { ReportsModule } from './reports/reports.module';
   UserModule,
   AuthModule,
   RedisCacheModule,
-  SessionModule  ],
+  SessionModule,
+  UploadModule,
+  CommentsModule  ],
   controllers: [AppController],
   providers: []  
 })

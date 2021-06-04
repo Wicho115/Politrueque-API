@@ -3,19 +3,19 @@ import { UserService } from './user.service'
 import { User } from './model/user'
 import { GraphQLUpload, FileUpload } from 'graphql-upload';
 import { UpdateUserInput, CreateUserInput, PrivilegesInput } from './user.inputs'
-import { BadRequestException, PayloadTooLargeException, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { BadRequestException,  UnauthorizedException, UseGuards } from '@nestjs/common';
 import { handleMongoError } from '../utils/error.util'
-import { File } from '../model/file';
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
 import { AdminAuthGuard } from 'src/auth/guards/admin-auth.guard';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { Privileges } from './interface/privileges.interface'
-import { Request } from 'express'
 import { CurrentPrivileges } from 'src/auth/decorators/current-privileges.decorator';
 import { Article } from 'src/articles/model/article';
 import { ArticlesService } from 'src/articles/articles.service';
 import { Report } from 'src/reports/model/report';
 import { ReportsService } from 'src/reports/reports.service';
+import { LocalAuthGuard } from 'src/auth/guards/local-auth.guard';
+import { NonVerifiedArticle } from 'src/articles/model/non-verified-article';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -25,17 +25,9 @@ export class UserResolver {
         private readonly reportService : ReportsService,
     ) { }
 
-    @Query(() => String)
-    public async hello() {
-        return await this.userService.upload();
-    }
-
     @Query(() => User)
-    @UseGuards(AdminAuthGuard)
-    public bye(@CurrentUser() user: User, @CurrentPrivileges() privileges: Privileges) {
-        console.log(privileges);
-
-        //return user as User;
+    @UseGuards(GqlAuthGuard)
+    public bye(@CurrentUser() user: User) {                
         return user;
     }
 
@@ -97,6 +89,16 @@ export class UserResolver {
         });
     }
 
+    @Mutation(() => User)
+    @UseGuards(GqlAuthGuard)
+    public async updateUser(
+        @CurrentUser() user : User,
+        @Args('payload') payload : UpdateUserInput
+    ){
+        if(user._id != payload._id) throw new UnauthorizedException("You can't do that");
+        return await this.userService.UpdateUser(payload);
+    }
+
     /*
     * 
     * TODO : UPDATEUSER MUTATION 
@@ -104,17 +106,21 @@ export class UserResolver {
     */
     @ResolveField(() => [Article], {nullable : true})    
     public async Articles(@Parent() {_id} : User) : Promise<Article[] | void>{
-        return this.articleService.getArticleByUserId(_id);
+        return this.articleService.getAvailableArticles(_id);
     }
 
     @ResolveField(() => [Report], {nullable : true})
     public async Reports(@Parent() {_id} : User) : Promise<Report[] | void>{
         return await this.reportService.getUserReports(_id);
+    }   
+
+    @ResolveField(() => [Article], {nullable : true})
+    public async NonAvailableArticles(@Parent() {_id} : User) : Promise<Article[] | void>{
+        return await this.articleService.getNonAvailableArticles(_id);
     }
 
-    @Mutation(() => File)
-    public async uploadFile(@Args('file', { type: () => GraphQLUpload }) file: Promise<FileUpload>) {
-        return this.userService.GetFile(file);
+    @ResolveField(() => [NonVerifiedArticle], {nullable: true})
+    public async NVArticles(@Parent() user : User) : Promise<NonVerifiedArticle[] | void>{
+        return await this.articleService.getMyNVArticles(user);
     }
-
 }

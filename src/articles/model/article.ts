@@ -23,11 +23,10 @@ export class Article{
         
     @Prop({required : true})
     propietary_id : string;  
-
     
-    @Field(() => String)
+    @Field(() => Int)
     @Prop({required : true})
-    category : string;
+    category : number;
 
     @Field(() => Boolean)
     @Prop({required : true})
@@ -47,7 +46,14 @@ export class Article{
 
     @Field(() => String, {nullable : true})
     @Prop()
-    exchange_product ?: string;    
+    exchange_product ?: string;  
+
+    @Field(() => String, {nullable : true})
+    @Prop({required : true})
+    img :string;
+
+    @Prop({required : true})
+    imgID : string;        
 }
 
 export type ArticleDocument = Article & Document;

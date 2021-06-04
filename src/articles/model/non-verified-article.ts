@@ -1,7 +1,6 @@
 import { ObjectType, Int, ID, Field, Float } from "@nestjs/graphql";
-import { Schema, Prop, SchemaFactory, raw } from "@nestjs/mongoose";
-import {Document, Types} from 'mongoose';
-import { User } from "src/user/model/user";
+import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose";
+import {Document } from 'mongoose';
 
 
 @ObjectType()
@@ -25,9 +24,9 @@ export class NonVerifiedArticle{
     @Prop({required : true})
     propietary_id : string;  
 
-    @Field(() => String)
+    @Field(() => Int)
     @Prop({required : true})
-    category : string;
+    category : number;
 
     @Field(() => Boolean)
     @Prop({required : true})
@@ -48,6 +47,13 @@ export class NonVerifiedArticle{
     @Field(() => String, {nullable : true})
     @Prop()
     exchange_product ?: string;    
+
+    @Field(() => String, {nullable  : true})
+    @Prop({required : true})
+    img:string;
+
+    @Prop({required : true})
+    imgID : string;        
 
 }
 

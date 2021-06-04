@@ -34,7 +34,7 @@ export class ArticlesResolver {
     @UseGuards(GqlAuthGuard)
     public async getArticle(
         @Args('id', { type: () => String }) id: string
-    ): Promise<Article | void> {
+    ): Promise<Article | void> {        
         return await this.articleService.getArticle(id).catch((e) => {
             handleMongoError(e);
         });;
@@ -69,6 +69,13 @@ export class ArticlesResolver {
         }
         return await this.articleService.deleteArticle(id);
     }    
+
+    @Mutation(() => Article)
+    @UseGuards(GqlAuthGuard)
+    public async sellArticle(
+        @Args('id') id : string,
+        @CurrentUser() user : User,
+    ){return await this.articleService.sellArticle(id, user);}
 
     @ResolveField(() => User)
     async propietary(@Parent() Article: NonVerifiedArticle) {

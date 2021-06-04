@@ -1,5 +1,5 @@
 import {Field, InputType} from '@nestjs/graphql';
-import { GraphQLUpload } from 'graphql-upload';
+import { FileUpload, GraphQLUpload } from 'graphql-upload';
 
 @InputType()
 export class PrivilegesInput{
@@ -44,9 +44,6 @@ export class UpdateUserInput{
     @Field(() => String)
     _id : string
 
-    @Field(() => String, {nullable : true})
-    username ?: string;
-
-    @Field(() => GraphQLUpload, {nullable : true})
-    Image ?: typeof GraphQLUpload;    
+    @Field(() => GraphQLUpload)
+    img : Promise<FileUpload>   
 }

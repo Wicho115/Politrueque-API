@@ -39,7 +39,7 @@ export class ReportsResolver {
     @UseGuards(AdminAuthGuard)
     public async getReport(
         @Args('id', {type : () => String}) id : string,
-    ) : Promise<Report | void>{
+    ) : Promise<Report | void>{        
         return await this.reportService.getReportByID(id)
     }
 
@@ -91,12 +91,12 @@ export class ReportsResolver {
     }
 
     @ResolveField(() => Article, {nullable : true})
-    public async article_ref(@Parent() {ref_id} : Report) : Promise<Article>{
+    public async Article_ref(@Parent() {ref_id} : Report) : Promise<Article>{
         return await this.articleService.getArticle(ref_id);
     }
 
     @ResolveField(() => User, {nullable : true})
-    public async user_ref(@Parent() {ref_id} : Report) : Promise<User>{
+    public async User_ref(@Parent() {ref_id} : Report) : Promise<User>{
         return await this.userService.searchUserByID(ref_id);
     }
 }

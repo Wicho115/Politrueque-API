@@ -1,4 +1,6 @@
+import { OnModuleInit } from '@nestjs/common';
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ArticlesService } from 'src/articles/articles.service';
@@ -7,13 +9,18 @@ import { Report, ReportDocument } from './model/report';
 import { CreateReportInput, UpdateReportInput } from './reports.input';
 
 @Injectable()
-export class ReportsService {
+export class ReportsService implements OnModuleInit{
+    private articleService : ArticlesService;
     constructor(
+        private moduleRef : ModuleRef,
         @InjectModel(Report.name)
         private readonly reportModel : Model<ReportDocument>,
         private readonly userService :UserService,
-        private readonly articleService : ArticlesService,
     ){}
+
+    onModuleInit(){
+        this.articleService = this.moduleRef.get(ArticlesService);
+    }
 
     public async getReports() : Promise<Report[]>{
         return await this.reportModel.find();
@@ -55,6 +62,14 @@ export class ReportsService {
         const report = await this.reportModel.findById(_id);
         if(!report) throw new BadRequestException("No such report found");
         return await this.reportModel.findByIdAndDelete(_id);
+    }
+
+    public async deleteReportsFromArticle(ArticleID : string) : Promise<void>{
+        const reports = await this.reportModel.find({ref_id : ArticleID});
+        if(!reports) return;
+        reports.forEach((report) =>{
+            report.delete();
+        })
     }
 
     public async updateReport(data : UpdateReportInput) : Promise<Report>{

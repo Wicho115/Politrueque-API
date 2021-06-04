@@ -14,11 +14,17 @@ export class ActionInput {
 }
 
 export class CreateArticleInput {
-    category: string;
+    category: number;
     description: string;
+    img: Upload;
     name: string;
     state: boolean;
     stock: number;
+}
+
+export class CreateCommentInput {
+    NVArticle_id: string;
+    content: string;
 }
 
 export class CreateReportInput {
@@ -53,10 +59,11 @@ export class UpdateArticleInput {
 }
 
 export class UpdateNVArticleInput {
-    category?: string;
+    category?: number;
     description?: string;
     exchange_product?: string;
     id: string;
+    img?: Upload;
     name?: string;
     price?: number;
     state?: boolean;
@@ -69,13 +76,19 @@ export class UpdateReportInput {
     title?: string;
 }
 
+export class UpdateUserInput {
+    _id: string;
+    img: Upload;
+}
+
 export class Article {
     _id: string;
     action_id: number;
     available: boolean;
-    category: string;
+    category: number;
     description: string;
     exchange_product?: string;
+    img?: string;
     name: string;
     price?: number;
     propietary: User;
@@ -83,8 +96,12 @@ export class Article {
     stock: number;
 }
 
-export class File {
-    url: string;
+export class Comment {
+    Author: User;
+    NVArticle_id: string;
+    _id: string;
+    author_id: string;
+    content: string;
 }
 
 export abstract class IMutation {
@@ -92,11 +109,15 @@ export abstract class IMutation {
 
     abstract createArticle(action: ActionInput, payload: CreateArticleInput): NonVerifiedArticle | Promise<NonVerifiedArticle>;
 
+    abstract createComment(payload: CreateCommentInput): Comment | Promise<Comment>;
+
     abstract createReport(payload: CreateReportInput): Report | Promise<Report>;
 
     abstract createUser(payload: CreateUserInput): User | Promise<User>;
 
     abstract deleteArticle(id: string): Article | Promise<Article>;
+
+    abstract deleteComment(id: string): Comment | Promise<Comment>;
 
     abstract deleteNVArticle(id: string): NonVerifiedArticle | Promise<NonVerifiedArticle>;
 
@@ -106,25 +127,29 @@ export abstract class IMutation {
 
     abstract registerAdmin(payload: CreateUserInput, privileges: PrivilegesInput): User | Promise<User>;
 
+    abstract sellArticle(id: string): Article | Promise<Article>;
+
     abstract updateArticle(payload: UpdateArticleInput): Article | Promise<Article>;
 
     abstract updateNVArticle(payload: UpdateNVArticleInput): NonVerifiedArticle | Promise<NonVerifiedArticle>;
 
     abstract updateReport(payload: UpdateReportInput): Report | Promise<Report>;
 
-    abstract uploadFile(file: Upload): File | Promise<File>;
+    abstract updateUser(payload: UpdateUserInput): User | Promise<User>;
 }
 
 export class NonVerifiedArticle {
+    Comments?: Comment[];
+    Propietary: User;
     _id: string;
     action_id: number;
     available: boolean;
-    category: string;
+    category: number;
     description: string;
     exchange_product?: string;
+    img?: string;
     name: string;
     price?: number;
-    propietary: User;
     state: boolean;
     stock: number;
 }
@@ -135,6 +160,8 @@ export abstract class IQuery {
     abstract getArticle(id: string): Article | Promise<Article>;
 
     abstract getArticles(action_id: number): Article[] | Promise<Article[]>;
+
+    abstract getMyNVArticles(): NonVerifiedArticle[] | Promise<NonVerifiedArticle[]>;
 
     abstract getNVArticle(id: string): NonVerifiedArticle | Promise<NonVerifiedArticle>;
 
@@ -147,29 +174,29 @@ export abstract class IQuery {
     abstract getReportsByType(type: string): Report[] | Promise<Report[]>;
 
     abstract getUserByID(_id: string): User | Promise<User>;
-
-    abstract hello(): string | Promise<string>;
 }
 
 export class Report {
+    Article_ref?: Article;
+    User_ref?: User;
     _id: string;
-    article_ref?: Article;
     author: User;
     author_id: string;
     description: string;
     ref_id: string;
     title: string;
     type: string;
-    user_ref?: User;
 }
 
 export class User {
     Articles?: Article[];
+    NVArticles?: NonVerifiedArticle[];
+    NonAvailableArticles?: Article[];
     Reports?: Report[];
     _id: string;
     email: string;
     gender: string;
-    imgURL: string;
+    img?: string;
     username: string;
 }
 

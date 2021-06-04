@@ -28,10 +28,14 @@ export class User{
     gender : string;   
         
     
-    @Field()
-    @Prop()
-    imgURL?:string;
-}
+    @Field(() => String, {nullable : true})
+    @Prop({required : false})
+    img?:string;
+
+    @Prop({required : false})
+    imgID ?: string;        
+
+}   
 
 export type UserDocument = User & Document;
 export const UserSchema = SchemaFactory.createForClass(User);
